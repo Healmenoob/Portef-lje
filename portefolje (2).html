@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portefølje</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0c;
+  --bg2: #161614;
+  --bg3: #1e1e1b;
+  --bg4: #252522;
+  --accent: #c8f55a;
+  --accent2: #a8d43a;
+  --text: #f0ede4;
+  --text2: #9a9890;
+  --text3: #5a5a55;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --r: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  background: rgba(14,14,12,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 2rem; height: 52px;
+}
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--text);
+  margin-right: 2rem; letter-spacing: -0.02em;
+}
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 0; }
+.nav-link {
+  padding: 0 1rem; height: 52px; display: flex; align-items: center;
+  font-size: 12px; color: var(--text2); cursor: pointer; letter-spacing: 0.05em;
+  text-transform: uppercase; border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s; user-select: none;
+}
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-right { margin-left: auto; display: flex; gap: 8px; }
+.btn {
+  padding: 6px 14px; font-size: 11px; font-family: 'DM Mono', monospace;
+  border: 1px solid var(--border2); border-radius: var(--r);
+  background: transparent; color: var(--text2); cursor: pointer;
+  letter-spacing: 0.05em; text-transform: uppercase; transition: all .15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { color: var(--text); border-color: var(--accent); }
+.btn.accent { background: var(--accent); color: #0e0e0c; border-color: var(--accent); font-weight: 500; }
+.btn.accent:hover { background: var(--accent2); border-color: var(--accent2); }
+
+/* PAGES */
+.page { display: none; padding: 80px 2rem 3rem; max-width: 1100px; margin: 0 auto; }
+.page.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* OVERVIEW PAGE */
+.page-header { margin-bottom: 2.5rem; }
+.page-title { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--text); letter-spacing: -0.03em; margin-bottom: 4px; }
+.page-sub { font-size: 12px; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 2rem; }
+.metric { background: var(--bg2); padding: 1.25rem 1.5rem; }
+.metric-label { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.metric-val { font-size: 24px; color: var(--text); letter-spacing: -0.02em; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.metric-val.pos { color: var(--green); }
+.metric-val.neg { color: var(--red); }
+
+/* CHART + LIST LAYOUT */
+.overview-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; align-items: start; }
+@media(max-width:700px) { .overview-layout { grid-template-columns: 1fr; } }
+
+/* DONUT */
+.donut-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; }
+.donut-title { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.25rem; }
+#donutSvg { display: block; margin: 0 auto 1.25rem; }
+.legend { display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-pct { margin-left: auto; color: var(--text); font-size: 11px; }
+
+/* STOCK LIST */
+.stock-list { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.list-header { display: grid; grid-template-columns: 1fr 80px 80px 90px 80px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.list-header span { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
+.list-header span.r { text-align: right; }
+.stock-row {
+  display: grid; grid-template-columns: 1fr 80px 80px 90px 80px;
+  gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s; align-items: center;
+}
+.stock-row:last-child { border-bottom: none; }
+.stock-row:hover { background: var(--bg3); }
+.stock-ticker { font-size: 13px; color: var(--text); letter-spacing: 0.03em; }
+.stock-name { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.stock-cell { text-align: right; font-size: 12px; color: var(--text2); }
+.pct-bar-wrap { width: 100%; height: 3px; background: var(--bg4); border-radius: 2px; margin-top: 4px; }
+.pct-bar { height: 3px; border-radius: 2px; transition: width .5s ease; }
+.signal { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.05em; text-align: center; }
+.s-kjøp { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+.s-hold { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+.s-selg { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.s-spekulativ { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.s-ukjent { background: rgba(96,165,250,0.12); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+
+/* SELSKAPER PAGE */
+.companies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.company-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 1.5rem; cursor: pointer; transition: border-color .2s, background .2s;
+  position: relative; overflow: hidden;
+}
+.company-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--card-color, var(--accent)); opacity: 0; transition: opacity .2s;
+}
+.company-card:hover { background: var(--bg3); border-color: var(--border2); }
+.company-card:hover::before { opacity: 1; }
+.card-ticker { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.card-name { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); margin-bottom: 8px; letter-spacing: -0.02em; }
+.card-desc { font-size: 12px; color: var(--text2); line-height: 1.65; margin-bottom: 1rem; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--bg4); color: var(--text3); letter-spacing: 0.04em; }
+.card-pct { position: absolute; top: 1.25rem; right: 1.25rem; font-size: 20px; color: var(--text3); font-family: 'DM Serif Display', serif; }
+
+/* DETAIL PAGE */
+.detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); cursor: pointer; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2rem; transition: color .15s; }
+.detail-back:hover { color: var(--accent); }
+.detail-hero { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start; margin-bottom: 2rem; }
+.detail-ticker { font-size: 12px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.detail-name { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--text); letter-spacing: -0.03em; line-height: 1.1; }
+.detail-sector { font-size: 11px; color: var(--text3); margin-top: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+.detail-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; min-width: 220px; }
+.detail-stat { background: var(--bg2); padding: 1rem 1.25rem; }
+.detail-stat-label { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.detail-stat-val { font-size: 18px; color: var(--text); }
+.detail-stat-val.pos { color: var(--green); }
+.detail-stat-val.neg { color: var(--red); }
+.detail-body { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+@media(max-width:700px) { .detail-body { grid-template-columns: 1fr; } .detail-hero { grid-template-columns: 1fr; } }
+.detail-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1rem; }
+.detail-section-label { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
+.detail-text { font-size: 13px; color: var(--text2); line-height: 1.75; }
+.detail-list { list-style: none; }
+.detail-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); display: flex; justify-content: space-between; }
+.detail-list li:last-child { border-bottom: none; }
+.detail-list li span { color: var(--text); }
+.analyse-cta { background: rgba(200,245,90,0.06); border: 1px solid rgba(200,245,90,0.2); border-radius: var(--r); padding: 1.25rem 1.5rem; }
+.analyse-cta p { font-size: 12px; color: var(--text2); margin-bottom: 1rem; line-height: 1.65; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 12px; padding: 2rem; width: 100%; max-width: 460px; animation: fadeUp .2s ease; }
+.modal h3 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 1.5rem; color: var(--text); }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 9px 12px; font-size: 13px; font-family: 'DM Mono', monospace;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r);
+  color: var(--text); outline: none; transition: border-color .15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group select option { background: var(--bg3); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+.empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: .3; }
+
+/* DISCLAIMER MODAL */
+.disclaimer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85);
+  z-index: 999; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.disclaimer-box {
+  background: var(--bg2); border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 12px; padding: 2.5rem; max-width: 500px; width: 90%;
+  animation: fadeUp .3s ease;
+}
+.disclaimer-icon { font-size: 28px; margin-bottom: 1rem; color: var(--amber); }
+.disclaimer-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); margin-bottom: 1rem; letter-spacing: -0.02em; }
+.disclaimer-text { font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 1.5rem; }
+.disclaimer-text strong { color: var(--text); }
+.disclaimer-accept { width: 100%; padding: 11px; font-size: 12px; font-family: 'DM Mono', monospace; background: var(--amber); color: #0e0e0c; border: none; border-radius: var(--r); cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; transition: opacity .15s; }
+.disclaimer-accept:hover { opacity: .85; }
+
+/* FOOTER */
+.site-footer { max-width: 1100px; margin: 2rem auto 0; padding: 1.5rem 2rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.footer-warning { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text3); }
+.footer-warning span { color: var(--amber); font-size: 14px; }
+.footer-right { font-size: 11px; color: var(--text3); cursor: pointer; letter-spacing: 0.04em; }
+.footer-right:hover { color: var(--amber); }
+
+/* WELCOME PAGE */
+.welcome-page { display: none; padding: 0; max-width: 100%; margin: 0; }
+.welcome-page.active { display: block; animation: fadeUp .4s ease; }
+.hero {
+  position: relative; width: 100%; height: 92vh; min-height: 560px;
+  overflow: hidden; display: flex; align-items: flex-end;
+}
+.hero-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(14,14,12,1) 0%, rgba(14,14,12,0.5) 40%, rgba(14,14,12,0.1) 100%);
+}
+.hero-content {
+  position: relative; z-index: 2; max-width: 1100px;
+  margin: 0 auto; padding: 0 2rem 4rem; width: 100%;
+}
+.hero-eyebrow { font-size: 11px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+.hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(36px, 6vw, 68px); color: var(--text); line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+.hero-title em { color: var(--accent); font-style: italic; }
+.hero-subtitle { font-size: 15px; color: var(--text2); line-height: 1.7; max-width: 520px; margin-bottom: 2rem; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-btn { padding: 12px 24px; font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; border-radius: var(--r); cursor: pointer; transition: all .2s; border: 1px solid transparent; }
+.hero-btn.primary { background: var(--accent); color: #0e0e0c; font-weight: 500; }
+.hero-btn.primary:hover { background: var(--accent2); }
+.hero-btn.secondary { background: transparent; color: var(--text2); border-color: var(--border2); }
+.hero-btn.secondary:hover { color: var(--text); border-color: var(--text2); }
+.welcome-body { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 4rem; }
+.why-card { background: var(--bg2); padding: 2rem; }
+.why-num { font-family: 'DM Serif Display', serif; font-size: 48px; color: var(--bg4); line-height: 1; margin-bottom: 1rem; }
+.why-title { font-size: 14px; color: var(--text); margin-bottom: 8px; }
+.why-text { font-size: 12px; color: var(--text2); line-height: 1.75; }
+.about-section { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 4rem; }
+@media(max-width:700px){.about-section{grid-template-columns:1fr;gap:2rem;}}
+.about-label { font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+.about-title { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text); letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 1.25rem; }
+.about-text { font-size: 13px; color: var(--text2); line-height: 1.85; }
+.about-text p { margin-bottom: 1rem; }
+.about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.about-stat { background: var(--bg2); padding: 1.5rem; }
+.about-stat-val { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--accent); letter-spacing: -0.03em; }
+.about-stat-label { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.4; }
+.philosophy-row { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 3rem; }
+.philosophy-item { background: var(--bg2); padding: 1.5rem 2rem; display: flex; gap: 1.5rem; align-items: flex-start; transition: background .15s; }
+.philosophy-item:hover { background: var(--bg3); }
+.philosophy-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.philosophy-title { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+.philosophy-text { font-size: 12px; color: var(--text2); line-height: 1.65; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">port<span>.</span>folio</div>
+  <div class="nav-links">
+    <div class="nav-link" onclick="showPage('welcome')" id="nav-welcome">Velkommen</div>
+    <div class="nav-link active" onclick="showPage('overview')" id="nav-overview">Oversikt</div>
+    <div class="nav-link" onclick="showPage('companies')" id="nav-companies">Selskaper</div>
+  </div>
+  <div class="nav-right">
+    <button class="btn" onclick="openAddModal()">+ Legg til</button>
+    <button class="btn accent" onclick="analyseAll()">Analyser alle ↗</button>
+  </div>
+</nav>
+
+<!-- WELCOME PAGE -->
+<div class="welcome-page active" id="page-welcome">
+  <div class="hero">
+    <!-- SVG SCENE: oil platform + tanker at sea -->
+    <svg class="hero-scene" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sky gradient -->
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1628"/>
+          <stop offset="55%" stop-color="#0d2240"/>
+          <stop offset="100%" stop-color="#132d52"/>
+        </linearGradient>
+        <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0f2a45"/>
+          <stop offset="100%" stop-color="#071520"/>
+        </linearGradient>
+        <linearGradient id="moonGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%" gradientUnits="objectBoundingBox" id="mg">
+          <stop offset="0%" stop-color="#c8f55a" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#c8f55a" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c8f55a" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#c8f55a" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softglow">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Sky -->
+      <rect width="1400" height="700" fill="url(#sky)"/>
+
+      <!-- Stars -->
+      <circle cx="120" cy="60" r="1" fill="#fff" opacity="0.6"/>
+      <circle cx="250" cy="30" r="1.5" fill="#fff" opacity="0.5"/>
+      <circle cx="380" cy="80" r="1" fill="#fff" opacity="0.7"/>
+      <circle cx="520" cy="20" r="1" fill="#fff" opacity="0.4"/>
+      <circle cx="680" cy="50" r="1.5" fill="#fff" opacity="0.6"/>
+      <circle cx="820" cy="35" r="1" fill="#fff" opacity="0.5"/>
+      <circle cx="950" cy="70" r="1" fill="#fff" opacity="0.8"/>
+      <circle cx="1100" cy="25" r="1.5" fill="#fff" opacity="0.4"/>
+      <circle cx="1250" cy="55" r="1" fill="#fff" opacity="0.6"/>
+      <circle cx="1350" cy="40" r="1" fill="#fff" opacity="0.5"/>
+      <circle cx="180" cy="110" r="1" fill="#fff" opacity="0.3"/>
+      <circle cx="450" cy="95" r="1" fill="#fff" opacity="0.5"/>
+      <circle cx="760" cy="90" r="1.5" fill="#fff" opacity="0.4"/>
+      <circle cx="1020" cy="110" r="1" fill="#fff" opacity="0.6"/>
+      <circle cx="1300" cy="90" r="1" fill="#fff" opacity="0.3"/>
+
+      <!-- Moon glow -->
+      <ellipse cx="1180" cy="100" rx="120" ry="120" fill="url(#mg)" opacity="0.8"/>
+      <!-- Moon -->
+      <circle cx="1180" cy="100" r="38" fill="#1e3a5a" filter="url(#softglow)"/>
+      <circle cx="1180" cy="100" r="34" fill="#d4e8a0" opacity="0.9"/>
+      <circle cx="1165" cy="90" r="10" fill="#c0d870" opacity="0.4"/>
+      <circle cx="1190" cy="108" r="6" fill="#b8cf60" opacity="0.3"/>
+
+      <!-- Moon reflection on water -->
+      <ellipse cx="1180" cy="490" rx="25" ry="90" fill="#c8f55a" opacity="0.06"/>
+
+      <!-- Distant clouds -->
+      <ellipse cx="200" cy="150" rx="90" ry="22" fill="#0e2035" opacity="0.7"/>
+      <ellipse cx="280" cy="140" rx="70" ry="18" fill="#0e2035" opacity="0.5"/>
+      <ellipse cx="600" cy="130" rx="110" ry="20" fill="#0e2035" opacity="0.6"/>
+      <ellipse cx="700" cy="122" rx="80" ry="16" fill="#0e2035" opacity="0.4"/>
+
+      <!-- Horizon glow -->
+      <ellipse cx="700" cy="400" rx="500" ry="40" fill="#1a4a7a" opacity="0.18"/>
+
+      <!-- SEA -->
+      <rect x="0" y="400" width="1400" height="300" fill="url(#sea)"/>
+
+      <!-- Sea waves / shimmer lines -->
+      <path d="M0 420 Q100 415 200 422 Q350 428 500 418 Q650 410 800 420 Q950 428 1100 416 Q1250 408 1400 420" stroke="#1e4060" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <path d="M0 445 Q150 438 300 446 Q500 452 700 440 Q900 430 1100 444 Q1250 450 1400 442" stroke="#1a3a58" stroke-width="1" fill="none" opacity="0.4"/>
+      <path d="M0 470 Q200 462 400 472 Q600 480 800 466 Q1050 452 1200 468 Q1300 474 1400 462" stroke="#162e48" stroke-width="1" fill="none" opacity="0.3"/>
+
+      <!-- ===================== OIL PLATFORM ===================== -->
+      <!-- Base legs in water -->
+      <rect x="560" y="390" width="18" height="120" fill="#1a2a3a" rx="2"/>
+      <rect x="610" y="395" width="18" height="120" fill="#1a2a3a" rx="2"/>
+      <rect x="680" y="385" width="20" height="125" fill="#1a2a3a" rx="2"/>
+      <rect x="740" y="390" width="18" height="120" fill="#1a2a3a" rx="2"/>
+      <!-- Cross braces -->
+      <line x1="560" y1="430" x2="750" y2="440" stroke="#243545" stroke-width="3"/>
+      <line x1="560" y1="460" x2="750" y2="470" stroke="#243545" stroke-width="2.5"/>
+      <line x1="570" y1="390" x2="700" y2="420" stroke="#1e3040" stroke-width="2"/>
+      <line x1="700" y1="390" x2="560" y2="430" stroke="#1e3040" stroke-width="2"/>
+
+      <!-- Main platform deck -->
+      <rect x="530" y="295" width="260" height="18" fill="#2a3d52" rx="2"/>
+      <!-- Platform body upper -->
+      <rect x="545" y="215" width="230" height="82" fill="#243245" rx="3"/>
+      <!-- Platform railing -->
+      <rect x="530" y="208" width="260" height="8" fill="#2e4258" rx="1"/>
+      <rect x="530" y="208" width="4" height="30" fill="#2e4258"/>
+      <rect x="786" y="208" width="4" height="30" fill="#2e4258"/>
+      <line x1="532" y1="225" x2="788" y2="225" stroke="#2e4258" stroke-width="2"/>
+
+      <!-- Helipad -->
+      <rect x="545" y="215" width="75" height="60" fill="#1e2e3e" rx="2"/>
+      <circle cx="582" cy="245" r="22" fill="none" stroke="#3a5268" stroke-width="2"/>
+      <text x="582" y="251" text-anchor="middle" fill="#3a5268" font-size="16" font-family="sans-serif" font-weight="bold">H</text>
+
+      <!-- Accommodation modules -->
+      <rect x="630" y="220" width="60" height="50" fill="#1e3348" rx="2"/>
+      <rect x="700" y="225" width="55" height="45" fill="#1a2e44" rx="2"/>
+      <!-- Windows -->
+      <rect x="635" y="228" width="8" height="6" fill="#c8f55a" opacity="0.7" rx="1"/>
+      <rect x="648" y="228" width="8" height="6" fill="#c8f55a" opacity="0.5" rx="1"/>
+      <rect x="661" y="228" width="8" height="6" fill="#c8f55a" opacity="0.8" rx="1"/>
+      <rect x="635" y="240" width="8" height="6" fill="#c8f55a" opacity="0.4" rx="1"/>
+      <rect x="648" y="240" width="8" height="6" fill="#c8f55a" opacity="0.6" rx="1"/>
+      <rect x="706" y="232" width="7" height="5" fill="#c8f55a" opacity="0.5" rx="1"/>
+      <rect x="718" y="232" width="7" height="5" fill="#c8f55a" opacity="0.7" rx="1"/>
+      <rect x="730" y="232" width="7" height="5" fill="#c8f55a" opacity="0.4" rx="1"/>
+      <rect x="706" y="243" width="7" height="5" fill="#c8f55a" opacity="0.6" rx="1"/>
+      <rect x="718" y="243" width="7" height="5" fill="#c8f55a" opacity="0.3" rx="1"/>
+
+      <!-- Derrick / drilling tower -->
+      <polygon points="670,110 685,215 755,215 770,110" fill="#1e3248" stroke="#243a52" stroke-width="1.5"/>
+      <!-- Derrick cross-beams -->
+      <line x1="675" y1="140" x2="765" y2="148" stroke="#2a4060" stroke-width="2"/>
+      <line x1="678" y1="165" x2="762" y2="172" stroke="#2a4060" stroke-width="2"/>
+      <line x1="682" y1="190" x2="758" y2="196" stroke="#2a4060" stroke-width="2"/>
+      <line x1="670" y1="148" x2="770" y2="140" stroke="#1e3450" stroke-width="1.5"/>
+      <line x1="672" y1="172" x2="768" y2="165" stroke="#1e3450" stroke-width="1.5"/>
+      <!-- Derrick top -->
+      <rect x="714" y="104" width="12" height="10" fill="#2a3e54" rx="1"/>
+      <!-- Warning light on derrick -->
+      <circle cx="720" cy="104" r="5" fill="#f87171" opacity="0.9" filter="url(#glow)"/>
+
+      <!-- Flare boom -->
+      <line x1="785" y1="210" x2="850" y2="175" stroke="#2a3e54" stroke-width="4"/>
+      <!-- Flame -->
+      <ellipse cx="855" cy="168" rx="8" ry="12" fill="#fb923c" opacity="0.9" filter="url(#glow)"/>
+      <ellipse cx="855" cy="162" rx="5" ry="8" fill="#fbbf24" opacity="0.8" filter="url(#glow)"/>
+      <ellipse cx="855" cy="158" rx="3" ry="5" fill="#fef08a" opacity="0.9"/>
+
+      <!-- Crane on platform -->
+      <rect x="540" y="240" width="6" height="60" fill="#2a3e54" rx="1"/>
+      <line x1="543" y1="240" x2="575" y2="255" stroke="#2a3e54" stroke-width="4"/>
+      <line x1="575" y1="255" x2="575" y2="275" stroke="#3a5268" stroke-width="2"/>
+
+      <!-- Platform glow/lights reflected in water -->
+      <ellipse cx="660" cy="415" rx="60" ry="12" fill="#c8f55a" opacity="0.04"/>
+      <ellipse cx="660" cy="430" rx="40" ry="8" fill="#c8f55a" opacity="0.03"/>
+
+      <!-- ===================== OIL TANKER ===================== -->
+      <!-- Hull -->
+      <path d="M50 440 Q60 435 120 432 L950 432 Q980 432 995 440 Q1000 450 990 460 L60 460 Q45 458 42 450 Z" fill="#1a2d3e" stroke="#243545" stroke-width="1.5"/>
+      <!-- Hull dark bottom -->
+      <path d="M50 452 L990 452 Q996 456 990 460 L60 460 Q44 458 50 452Z" fill="#0f1e2a"/>
+      <!-- Red waterline stripe -->
+      <rect x="60" y="450" width="928" height="6" fill="#7f1d1d" opacity="0.8" rx="1"/>
+
+      <!-- Main deck -->
+      <rect x="80" y="408" width="880" height="26" fill="#1e3245" rx="2"/>
+
+      <!-- Superstructure (bridge) right side -->
+      <rect x="840" y="340" width="120" height="70" fill="#1a2e44" rx="3"/>
+      <rect x="835" y="333" width="130" height="10" fill="#243848" rx="2"/>
+      <!-- Bridge windows -->
+      <rect x="848" y="348" width="15" height="10" fill="#60a5fa" opacity="0.6" rx="1"/>
+      <rect x="868" y="348" width="15" height="10" fill="#60a5fa" opacity="0.7" rx="1"/>
+      <rect x="888" y="348" width="15" height="10" fill="#60a5fa" opacity="0.5" rx="1"/>
+      <rect x="908" y="348" width="15" height="10" fill="#60a5fa" opacity="0.8" rx="1"/>
+      <rect x="848" y="364" width="15" height="8" fill="#60a5fa" opacity="0.4" rx="1"/>
+      <rect x="868" y="364" width="15" height="8" fill="#60a5fa" opacity="0.6" rx="1"/>
+      <rect x="888" y="364" width="15" height="8" fill="#60a5fa" opacity="0.3" rx="1"/>
+      <rect x="908" y="364" width="15" height="8" fill="#60a5fa" opacity="0.7" rx="1"/>
+      <!-- Bridge upper level -->
+      <rect x="850" y="310" width="100" height="24" fill="#162638" rx="2"/>
+      <rect x="858" y="316" width="12" height="8" fill="#60a5fa" opacity="0.5" rx="1"/>
+      <rect x="876" y="316" width="12" height="8" fill="#60a5fa" opacity="0.7" rx="1"/>
+      <rect x="894" y="316" width="12" height="8" fill="#60a5fa" opacity="0.4" rx="1"/>
+      <rect x="912" y="316" width="12" height="8" fill="#60a5fa" opacity="0.6" rx="1"/>
+      <!-- Radar/antenna -->
+      <rect x="897" y="295" width="4" height="16" fill="#2a3e54"/>
+      <line x1="880" y1="300" x2="918" y2="300" stroke="#2a3e54" stroke-width="2"/>
+      <!-- Funnel/chimney -->
+      <rect x="870" y="290" width="22" height="22" fill="#1a2a3a" rx="2"/>
+      <rect x="873" y="285" width="16" height="8" fill="#132030" rx="2"/>
+      <!-- Funnel smoke -->
+      <ellipse cx="881" cy="278" rx="7" ry="5" fill="#1a2a3a" opacity="0.5"/>
+      <ellipse cx="885" cy="268" rx="9" ry="6" fill="#1a2a3a" opacity="0.3"/>
+      <ellipse cx="890" cy="256" rx="11" ry="7" fill="#1a2a3a" opacity="0.2"/>
+
+      <!-- Cargo deck pipes and manifolds -->
+      <rect x="100" y="410" width="700" height="5" fill="#243848" rx="2"/>
+      <!-- Cargo hatches / tank tops -->
+      <rect x="120" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="220" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="320" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="420" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="520" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="620" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <rect x="720" y="410" width="80" height="5" fill="#1e3450" rx="1"/>
+      <!-- Valves/equipment on deck -->
+      <circle cx="160" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="260" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="360" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="460" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="560" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="660" cy="410" r="4" fill="#2a3e54"/>
+      <circle cx="760" cy="410" r="4" fill="#2a3e54"/>
+      <!-- Running lights -->
+      <circle cx="100" cy="428" r="3" fill="#4ade80" opacity="0.9" filter="url(#glow)"/>
+      <circle cx="960" cy="428" r="3" fill="#f87171" opacity="0.9" filter="url(#glow)"/>
+      <!-- Anchor chain -->
+      <path d="M110 436 Q108 445 106 458" stroke="#1a2a3a" stroke-width="3" fill="none"/>
+      <!-- Bow wave -->
+      <path d="M42 448 Q25 455 5 462 Q0 464 0 470" stroke="#1e4060" stroke-width="2" fill="none" opacity="0.6"/>
+      <!-- Wake -->
+      <path d="M992 455 Q1020 450 1060 458 Q1100 464 1150 460" stroke="#1a3a58" stroke-width="1.5" fill="none" opacity="0.4"/>
+      <path d="M992 460 Q1030 458 1080 466 Q1130 472 1180 468" stroke="#162e48" stroke-width="1" fill="none" opacity="0.3"/>
+
+      <!-- Tanker light reflections in water -->
+      <ellipse cx="500" cy="470" rx="200" ry="8" fill="#60a5fa" opacity="0.03"/>
+      <ellipse cx="900" cy="472" rx="80" ry="6" fill="#60a5fa" opacity="0.05"/>
+
+      <!-- Hose/loading arm connecting tanker to platform (faint) -->
+      <path d="M785 415 Q820 418 840 412" stroke="#2a3e54" stroke-width="3" fill="none" stroke-dasharray="6,4" opacity="0.5"/>
+    </svg>
+
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Privat investerings-logg</div>
+      <div class="hero-title">Investering med<br><em>langsiktig perspektiv</em></div>
+      <div class="hero-subtitle">En personlig oversikt over min aksjeportefølje — med fokus på utbytte, energi og vekst. Ikke rådgivning, men en åpen logg over egne beslutninger.</div>
+      <div class="hero-cta">
+        <button class="hero-btn primary" onclick="showPage('overview')">Se porteføljen →</button>
+        <button class="hero-btn secondary" onclick="showPage('companies')">Utforsk selskaper</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome-body">
+
+    <div class="about-section">
+      <div>
+        <div class="about-label">Bakgrunn</div>
+        <div class="about-title">Hvorfor jeg lager denne hjemmesiden</div>
+        <div class="about-text">
+          <p>Jeg startet å investere i aksjer fordi jeg ville at pengene mine skulle jobbe for meg — ikke bare ligge på konto og tape kjøpekraft til inflasjon. Målet er langsiktig formuesbygging gjennom en blanding av utbytteaksjer og vekstselskaper.</p>
+          <p>Denne siden er min personlige logg. Her dokumenterer jeg hva jeg eier, hvorfor jeg eier det og hva jeg tenker om hver enkelt investering. Det hjelper meg å tenke klart og ikke handle på impuls.</p>
+          <p>Porteføljen er konsentrert rundt energi, shipping og kritiske mineraler — sektorer jeg tror på i et langsiktig perspektiv. Men jeg holder også øye med teknologi og internasjonale muligheter.</p>
+        </div>
+      </div>
+      <div class="about-stats">
+        <div class="about-stat">
+          <div class="about-stat-val">10</div>
+          <div class="about-stat-label">Aktive posisjoner på tvers av sektorer</div>
+        </div>
+        <div class="about-stat">
+          <div class="about-stat-val">7</div>
+          <div class="about-stat-label">Selskaper som betaler utbytte</div>
+        </div>
+        <div class="about-stat">
+          <div class="about-stat-val">3+</div>
+          <div class="about-stat-label">År som aktivt tidsperspektiv</div>
+        </div>
+        <div class="about-stat">
+          <div class="about-stat-val">Oslo</div>
+          <div class="about-stat-label">Primær børs, men også NYSE og Nasdaq</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-label" style="margin-bottom:1.5rem">Min investeringsfilosofi</div>
+    <div class="philosophy-row">
+      <div class="philosophy-item">
+        <div class="philosophy-icon">⚓</div>
+        <div>
+          <div class="philosophy-title">Langsiktighet over alt</div>
+          <div class="philosophy-text">Jeg kjøper aksjer jeg er villig til å eie i 3–10 år. Kortsiktig svingninger er støy — det er den underliggende virksomheten som teller.</div>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-icon">⛽</div>
+        <div>
+          <div class="philosophy-title">Energi og råvarer som fundament</div>
+          <div class="philosophy-text">Verden trenger energi, mineraler og mat. Selskaper i disse sektorene har ofte sterk kontantstrøm og betaler utbytte — noe som gir løpende avkastning mens jeg venter på kursoppgang.</div>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-icon">🌱</div>
+        <div>
+          <div class="philosophy-title">Det grønne skiftet er en mulighet</div>
+          <div class="philosophy-text">Kritiske mineraler som rutil og kvarts er avgjørende for batterier, solceller og vindturbiner. Jeg tror tidlig posisjonering i slike selskaper gir stor avkastning over tid.</div>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-icon">🧾</div>
+        <div>
+          <div class="philosophy-title">Åpenhet med meg selv</div>
+          <div class="philosophy-text">Denne siden tvinger meg til å dokumentere beslutningene mine. Det er lett å huske vinnerne — vanskeligere å lære av taperne. Her logger jeg begge deler.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding: 2rem 0 1rem;">
+      <div style="font-size:11px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem">Klar til å utforske?</div>
+      <button class="hero-btn primary" onclick="showPage('overview')">Gå til porteføljeoversikten →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- OVERVIEW PAGE -->
+<div class="page" id="page-overview">
+  <div class="page-header">
+    <div class="page-title">Din portefølje</div>
+    <div class="page-sub" id="lastUpdated">Oppdatert i dag</div>
+  </div>
+  <div class="metrics" id="metrics"></div>
+  <div class="overview-layout">
+    <div class="donut-wrap">
+      <div class="donut-title">Fordeling</div>
+      <svg id="donutSvg" width="160" height="160" viewBox="0 0 160 160"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div>
+      <div class="stock-list">
+        <div class="list-header">
+          <span>Aksje</span>
+          <span class="r">Andel</span>
+          <span class="r">Avkastning</span>
+          <span class="r">Sektor</span>
+          <span class="r">Signal</span>
+        </div>
+        <div id="stockList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANIES PAGE -->
+<div class="page" id="page-companies">
+  <div class="page-header">
+    <div class="page-title">Selskaper</div>
+    <div class="page-sub">Klikk på et selskap for full info</div>
+  </div>
+  <div class="companies-grid" id="companiesGrid"></div>
+</div>
+
+<!-- DETAIL PAGE -->
+<div class="page" id="page-detail">
+  <div class="detail-back" onclick="showPage('companies')">← Tilbake til selskaper</div>
+  <div id="detailContent"></div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Legg til aksje</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ticker</label>
+        <input id="f-ticker" type="text" placeholder="f.eks. NOM.OL">
+      </div>
+      <div class="form-group">
+        <label>Selskapsnavn</label>
+        <input id="f-name" type="text" placeholder="Nordic Mining ASA">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Verdi (NOK)</label>
+        <input id="f-value" type="number" placeholder="116872" min="0">
+      </div>
+      <div class="form-group">
+        <label>GAV (NOK/aksje)</label>
+        <input id="f-gav" type="number" placeholder="14.68" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Antall aksjer</label>
+        <input id="f-shares" type="number" placeholder="7350" min="0">
+      </div>
+      <div class="form-group">
+        <label>Sektor</label>
+        <select id="f-sector">
+          <option>Shipping</option><option>Energi</option><option>Teknologi</option>
+          <option>Helse</option><option>Sjømat</option><option>Gjødsel/Kjemi</option>
+          <option>Kritiske mineraler</option><option>Gaming</option><option>Markedsplasser</option>
+          <option>Boring</option><option>Annet</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Signal</label>
+        <select id="f-signal">
+          <option value="hold">Hold</option><option value="kjøp">Kjøp</option>
+          <option value="selg">Selg</option><option value="spekulativ">Spekulativ</option>
+          <option value="ukjent">Ukjent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Utbytte</label>
+        <select id="f-div">
+          <option value="ja">Ja</option><option value="nei">Nei</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Kort beskrivelse</label>
+      <textarea id="f-desc" placeholder="Hva gjør selskapet?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Avbryt</button>
+      <button class="btn accent" onclick="saveStock()">Lagre</button>
+    </div>
+  </div>
+</div>
+
+<!-- DISCLAIMER MODAL -->
+<div class="disclaimer-overlay" id="disclaimerOverlay">
+  <div class="disclaimer-box">
+    <div class="disclaimer-icon">⚠</div>
+    <div class="disclaimer-title">Kun til personlig bruk</div>
+    <div class="disclaimer-text">
+      Dette er en <strong>privat porteføljeoversikt</strong> for personlig bruk og er ikke ment som finansiell rådgivning for andre.<br><br>
+      Innholdet på denne siden reflekterer <strong>egne investeringsbeslutninger</strong> og skal ikke tolkes som anbefalinger, råd eller oppfordringer til andre om å kjøpe eller selge verdipapirer.<br><br>
+      <strong>Investeringer innebærer risiko.</strong> Historisk avkastning er ingen garanti for fremtidig avkastning. Vurder alltid din egen økonomi og risikotoleranse, og søk profesjonell rådgivning ved behov.
+    </div>
+    <button class="disclaimer-accept" onclick="acceptDisclaimer()">Jeg forstår — vis min portefølje</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-warning">
+    <span>⚠</span>
+    Privat porteføljeoversikt — ikke finansiell rådgivning. Investeringer innebærer risiko.
+  </div>
+  <div class="footer-right" onclick="showDisclaimer()">Les ansvarsfraskrivelse</div>
+</footer>
+
+<script>
+const STORAGE_KEY = 'pf-v2';
+let stocks = [];
+let editingId = null;
+
+const COLORS = ['#c8f55a','#60a5fa','#f87171','#fbbf24','#a78bfa','#4ade80','#fb923c','#38bdf8','#f472b6','#34d399'];
+
+const SECTOR_DESC = {
+  'Kritiske mineraler': 'Utvinning av strategisk viktige mineraler som rutil og granat.',
+  'Gaming': 'Utvikling og distribusjon av videospill og underholdning.',
+  'Shipping': 'Transport av varer og råvarer til sjøs globalt.',
+  'Gjødsel/Kjemi': 'Produksjon av gjødsel og kjemikalier for landbruk og industri.',
+  'Boring': 'Brønntjenester og boreoperasjoner for olje- og gassindustrien.',
+  'Markedsplasser': 'Digitale plattformer for kjøp og salg av varer og tjenester.',
+  'Energi': 'Utvinning og produksjon av olje, gass og fornybar energi.',
+  'Sjømat': 'Oppdrett og produksjon av laks og annen sjømat.',
+  'Teknologi': 'Programvare, hardware og teknologitjenester.',
+  'Helse': 'Legemidler, medisinsk utstyr og helsetjenester.',
+  'Annet': 'Diversifisert virksomhet.'
+};
+
+const DEFAULT_STOCKS = [
+  {id:1,ticker:'NOM.OL',name:'Nordic Mining',value:116872,gav:14.68,shares:7350,sector:'Kritiske mineraler',signal:'spekulativ',div:'nei',desc:'Norges første nye gruve på 40 år. Utvinner rutil og granat i Engebø, Sogn og Fjordane. Strategisk viktige mineraler for det grønne skiftet. Selskapet er i rampeoppfase og forventer positiv kontantstrøm i 2027.'},
+  {id:2,ticker:'TTWO',name:'Take-Two Interactive',value:98879,gav:0,shares:0,sector:'Gaming',signal:'kjøp',div:'nei',desc:'Amerikansk spillgigant bak Grand Theft Auto, NBA 2K og Red Dead Redemption. GTA VI er den mest forventede spillutgivelsen på et tiår. 26 av 27 analytikere anbefaler kjøp med kursmål 277 USD.'},
+  {id:3,ticker:'MPCC.OL',name:'MPC Container Ships',value:78870,gav:0,shares:0,sector:'Shipping',signal:'hold',div:'ja',desc:'Norsk containerredereri spesialisert på små og mellomstore skip. Svært høy kontraktsdekning — 97% for 2026. Høy utbytteavkastning historisk. Handler nær analytikernes kursmål.'},
+  {id:4,ticker:'HAUTO.OL',name:'Höegh Autoliners',value:45738,gav:0,shares:0,sector:'Shipping',signal:'hold',div:'ja',desc:'Verdensledende innen transport av kjøretøy til sjøs (RoRo). Sterk posisjon i voksende marked for bileksport fra Asia. Handler over analytikernes kursmål — vurder å trimme.'},
+  {id:5,ticker:'YAR.OL',name:'Yara International',value:32184,gav:0,shares:0,sector:'Gjødsel/Kjemi',signal:'kjøp',div:'ja',desc:'Verdens største produsent av ammoniakk og mineralgjødsel. Sterk Q1 2026. Strategisk eksponering mot grønn ammoniakk og global matvaresikkerhet. Utbytteavkastning 5,3%.'},
+  {id:6,ticker:'FRO.OL',name:'Frontline',value:31815,gav:0,shares:0,sector:'Shipping',signal:'kjøp',div:'ja',desc:'En av verdens største oljetankerrederier. Flåten av VLCC og Suezmax-tankere gir høy eksponering mot oljeprisbevegelser. Historisk høy utbytteutbetaling i gode markeder.'},
+  {id:7,ticker:'NORAM.OL',name:'Noram Drilling',value:26200,gav:0,shares:0,sector:'Boring',signal:'kjøp',div:'ja',desc:'Norsk boreriggselskap med fokus på onshore-operasjoner. Utbytteavkastning 12,6% — blant de høyeste på Oslo Børs. Aksjen handles nå over analytikerkonsensus, avvent inngangspunkt.'},
+  {id:8,ticker:'VEND.OL',name:'Vend Marketplaces',value:20048,gav:0,shares:0,sector:'Markedsplasser',signal:'kjøp',div:'ja',desc:'Nordisk markedsplassvirksomhet utskilt fra Schibsted. Eier Finn.no, Blocket.se og DBA.dk. 36% EBITDA-margin, 4 mrd NOK tilbakekjøpsprogram. Mest solid selskap i porteføljen.'},
+  {id:9,ticker:'VAR.OL',name:'Vår Energi',value:17087,gav:0,shares:0,sector:'Energi',signal:'kjøp',div:'ja',desc:'Norsk olje- og gasselskap med operasjoner på norsk sokkel. Høy utbyttepolitikk. Stigende trendkanal. Posisjonen bør bygges opp over tid for mer stabil energieksponering.'},
+  {id:10,ticker:'MOWI.OL',name:'Mowi',value:13078,gav:0,shares:0,sector:'Sjømat',signal:'hold',div:'ja',desc:'Verdens største lakseprodusent. Opererer i Norge, Chile, Canada og Skottland. P/E 12, analytikerkursmål 244 kr mot nåværende kurs ~194. Lakseprisene er volatile på kort sikt.'},
+];
+
+async function loadData() {
+  if(typeof window.storage !== 'undefined') {
+    try {
+      const r = await window.storage.get(STORAGE_KEY);
+      stocks = r ? JSON.parse(r.value) : DEFAULT_STOCKS;
+    } catch(e) { stocks = DEFAULT_STOCKS; }
+  } else {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    stocks = raw ? JSON.parse(raw) : DEFAULT_STOCKS;
+  }
+  renderAll();
+}
+
+async function saveData() {
+  const json = JSON.stringify(stocks);
+  if(typeof window.storage !== 'undefined') {
+    try { await window.storage.set(STORAGE_KEY, json); } catch(e) {}
+  } else {
+    localStorage.setItem(STORAGE_KEY, json);
+  }
+}
+
+function renderAll() {
+  renderMetrics();
+  renderDonut();
+  renderStockList();
+  renderCompanies();
+  updateTimestamp();
+}
+
+function updateTimestamp() {
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    'Oppdatert ' + now.toLocaleDateString('nb-NO', {day:'numeric',month:'long',year:'numeric'});
+}
+
+function totalValue() { return stocks.reduce((a,s)=>a+s.value,0); }
+
+function renderMetrics() {
+  const total = totalValue();
+  const withDiv = stocks.filter(s=>s.div==='ja');
+  const withDivVal = withDiv.reduce((a,s)=>a+s.value,0);
+  const knownGav = stocks.filter(s=>s.gav>0&&s.shares>0);
+  const totalCost = knownGav.reduce((a,s)=>a+s.gav*s.shares,0);
+  const totalKnownVal = knownGav.reduce((a,s)=>a+s.value,0);
+  const gain = totalKnownVal - totalCost;
+  const gainPct = totalCost > 0 ? gain/totalCost*100 : null;
+
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Antall posisjoner</div>
+      <div class="metric-val">${stocks.length}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Urealisert avkastning</div>
+      <div class="metric-val ${gainPct===null?'':(gainPct>=0?'pos':'neg')}">
+        ${gainPct===null ? '—' : (gainPct>=0?'+':'')+gainPct.toFixed(1)+'%'}
+      </div>
+      <div class="metric-sub">${gainPct===null?'Fyll inn GAV':'Basert på kjente GAV'}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Med utbytte</div>
+      <div class="metric-val">${withDiv.length}</div>
+      <div class="metric-sub">${total>0?Math.round(withDivVal/total*100):0}% av portefølje</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Største posisjon</div>
+      <div class="metric-val" style="font-size:16px">${stocks.length>0?[...stocks].sort((a,b)=>b.value-a.value)[0].ticker:'—'}</div>
+      <div class="metric-sub">${stocks.length>0&&total>0?Math.round([...stocks].sort((a,b)=>b.value-a.value)[0].value/total*100)+'%':''}</div>
+    </div>
+  `;
+}
+
+function renderDonut() {
+  const total = totalValue();
+  if(!total) return;
+  const sorted = [...stocks].sort((a,b)=>b.value-a.value);
+  const cx=80,cy=80,r=60,ir=38;
+  let angle = -Math.PI/2;
+  let paths = '';
+  sorted.forEach((s,i) => {
+    const pct = s.value/total;
+    const a = pct*Math.PI*2;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    angle+=a;
+    const x2=cx+r*Math.cos(angle), y2=cy+r*Math.sin(angle);
+    const xi1=cx+ir*Math.cos(angle-a), yi1=cy+ir*Math.sin(angle-a);
+    const xi2=cx+ir*Math.cos(angle), yi2=cy+ir*Math.sin(angle);
+    const lg = a>Math.PI?1:0;
+    const col = COLORS[i%COLORS.length];
+    paths += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${lg},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${ir},${ir} 0 ${lg},0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z" fill="${col}" opacity="0.9"/>`;
+  });
+  document.getElementById('donutSvg').innerHTML = paths+`<text x="80" y="76" text-anchor="middle" fill="#f0ede4" font-size="11" font-family="DM Mono,monospace">${stocks.length}</text><text x="80" y="90" text-anchor="middle" fill="#5a5a55" font-size="9" font-family="DM Mono,monospace">POSISJONER</text>`;
+
+  document.getElementById('legend').innerHTML = sorted.slice(0,7).map((s,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <span style="color:var(--text2)">${s.ticker}</span>
+      <span class="legend-pct">${(s.value/total*100).toFixed(1)}%</span>
+    </div>
+  `).join('') + (sorted.length>7?`<div class="legend-item"><div class="legend-dot" style="background:var(--text3)"></div><span>+ ${sorted.length-7} andre</span></div>`:'');
+}
+
+function signalBadge(s) {
+  const cls = {kjøp:'s-kjøp',hold:'s-hold',selg:'s-selg',spekulativ:'s-spekulativ',ukjent:'s-ukjent'}[s]||'s-ukjent';
+  const lbl = {kjøp:'Kjøp',hold:'Hold',selg:'Selg',spekulativ:'Spekulativ',ukjent:'Ukjent'}[s]||s;
+  return `<span class="signal ${cls}">${lbl}</span>`;
+}
+
+function renderStockList() {
+  const total = totalValue();
+  const sorted = [...stocks].sort((a,b)=>b.value-a.value);
+  const maxPct = sorted.length>0 ? sorted[0].value/total*100 : 100;
+
+  document.getElementById('stockList').innerHTML = sorted.length === 0
+    ? `<div class="empty"><div class="empty-icon">◎</div><p style="color:var(--text3);font-size:12px">Ingen aksjer ennå</p></div>`
+    : sorted.map((s,i) => {
+        const pct = total>0 ? s.value/total*100 : 0;
+        const barW = maxPct>0 ? pct/maxPct*100 : 0;
+        const col = COLORS[i%COLORS.length];
+        let gavCell = '—';
+        if(s.gav>0&&s.shares>0) {
+          const cur = s.value/s.shares;
+          const d = (cur-s.gav)/s.gav*100;
+          gavCell = `<span style="color:${d>=0?'var(--green)':'var(--red)'}">${d>=0?'+':''}${d.toFixed(1)}%</span>`;
+        }
+        return `<div class="stock-row" onclick="showDetail(${s.id})">
+          <div>
+            <div class="stock-ticker">${s.ticker}</div>
+            <div class="stock-name">${s.name}</div>
+          </div>
+          <div class="stock-cell">
+            <div>${pct.toFixed(1)}%</div>
+            <div class="pct-bar-wrap"><div class="pct-bar" style="width:${barW}%;background:${col}"></div></div>
+          </div>
+          <div class="stock-cell">${gavCell}</div>
+          <div class="stock-cell" style="font-size:10px;color:var(--text3)">${s.sector}</div>
+          <div class="stock-cell">${signalBadge(s.signal)}</div>
+        </div>`;
+      }).join('');
+}
+
+function renderCompanies() {
+  const total = totalValue();
+  const sorted = [...stocks].sort((a,b)=>b.value-a.value);
+  document.getElementById('companiesGrid').innerHTML = sorted.length === 0
+    ? `<div class="empty"><div class="empty-icon">◎</div><p style="color:var(--text3);font-size:12px">Ingen selskaper ennå</p></div>`
+    : sorted.map((s,i) => {
+        const pct = total>0?(s.value/total*100).toFixed(1)+'%':'—';
+        const col = COLORS[i%COLORS.length];
+        return `<div class="company-card" style="--card-color:${col}" onclick="showDetail(${s.id})">
+          <div class="card-pct" style="color:${col}">${pct}</div>
+          <div class="card-ticker">${s.ticker}</div>
+          <div class="card-name">${s.name}</div>
+          <div class="card-desc">${s.desc||SECTOR_DESC[s.sector]||'Ingen beskrivelse.'}</div>
+          <div class="card-tags">
+            <span class="tag">${s.sector}</span>
+            ${s.div==='ja'?'<span class="tag" style="color:var(--green);background:rgba(74,222,128,0.08)">Utbytte</span>':''}
+            <span class="tag signal ${{'kjøp':'s-kjøp','hold':'s-hold','selg':'s-selg','spekulativ':'s-spekulativ','ukjent':'s-ukjent'}[s.signal]||'s-ukjent'}">${{'kjøp':'Kjøp','hold':'Hold','selg':'Selg','spekulativ':'Spekulativ','ukjent':'Ukjent'}[s.signal]||s.signal}</span>
+          </div>
+        </div>`;
+      }).join('');
+}
+
+function showDetail(id) {
+  const s = stocks.find(x=>x.id===id);
+  if(!s) return;
+  const total = totalValue();
+  const pct = total>0?(s.value/total*100).toFixed(1):0;
+  const i = [...stocks].sort((a,b)=>b.value-a.value).findIndex(x=>x.id===id);
+  const col = COLORS[i%COLORS.length];
+  let gavInfo = s.gav>0&&s.shares>0 ? `${s.gav.toFixed(2)} kr` : 'Ikke satt';
+  let avk = '—';
+  if(s.gav>0&&s.shares>0) {
+    const cur=s.value/s.shares, d=(cur-s.gav)/s.gav*100;
+    avk = `<span class="${d>=0?'pos':'neg'}" style="color:${d>=0?'var(--green)':'var(--red)'}">${d>=0?'+':''}${d.toFixed(1)}%</span>`;
+  }
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-hero">
+      <div>
+        <div class="detail-ticker" style="color:${col}">${s.ticker}</div>
+        <div class="detail-name">${s.name}</div>
+        <div class="detail-sector">${s.sector}</div>
+      </div>
+      <div class="detail-stats">
+        <div class="detail-stat">
+          <div class="detail-stat-label">Porteføljeandel</div>
+          <div class="detail-stat-val" style="color:${col}">${pct}%</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">Avkastning</div>
+          <div class="detail-stat-val">${avk}</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">GAV</div>
+          <div class="detail-stat-val" style="font-size:14px">${gavInfo}</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">Utbytte</div>
+          <div class="detail-stat-val" style="font-size:14px;color:${s.div==='ja'?'var(--green)':'var(--text3)'}">${s.div==='ja'?'Ja':'Nei'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div>
+        <div class="detail-section">
+          <div class="detail-section-label">Om selskapet</div>
+          <div class="detail-text">${s.desc||SECTOR_DESC[s.sector]||'Ingen beskrivelse tilgjengelig.'}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-label">Nøkkeltall</div>
+          <ul class="detail-list">
+            <li>Verdi i portefølje <span>${s.value.toLocaleString('nb-NO')} kr</span></li>
+            <li>Andel av total <span>${pct}%</span></li>
+            ${s.shares>0?`<li>Antall aksjer <span>${s.shares.toLocaleString('nb-NO')}</span></li>`:''}
+            ${s.gav>0?`<li>GAV per aksje <span>${s.gav.toFixed(2)} kr</span></li>`:''}
+            <li>Sektor <span>${s.sector}</span></li>
+            <li>Utbytteaksje <span>${s.div==='ja'?'Ja':'Nei'}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="detail-section">
+          <div class="detail-section-label">Signal</div>
+          <div style="margin-bottom:1rem">${signalBadge(s.signal)}</div>
+          <div class="detail-text" style="font-size:12px">
+            ${{
+              kjøp:'Analytikere og agentpanelet er positive. Aksjen kan ha oppsidepotensial.',
+              hold:'Behold posisjonen. Avvent ny informasjon eller bedre inngangspunkt.',
+              selg:'Vurder å redusere eller selge posisjonen. Nedsiderisiko er til stede.',
+              spekulativ:'Høy risiko. Langsiktig potensiale men krever tålmodighet og risikotoleranse.',
+              ukjent:'Ikke nok informasjon til å gi et tydelig signal.'
+            }[s.signal]||''}
+          </div>
+        </div>
+        <div class="analyse-cta">
+          <div class="detail-section-label" style="margin-bottom:.75rem">Agent-analyse</div>
+          <p>Få full analyse av ${s.name} fra alle fire agenter — økonom, markedsstrateg, optimist og skeptiker.</p>
+          <button class="btn accent" onclick="analyseOne('${s.ticker}','${s.name}')">Analyser ${s.ticker} ↗</button>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:8px">
+          <button class="btn" onclick="editStock(${s.id})" style="flex:1;justify-content:center">Rediger</button>
+          <button class="btn" onclick="deleteStockAndBack(${s.id})" style="color:var(--red);border-color:rgba(248,113,113,0.3);flex:1;justify-content:center">Slett</button>
+        </div>
+      </div>
+    </div>
+  `;
+  showPage('detail');
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if(navEl) navEl.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Legg til aksje';
+  ['f-ticker','f-name','f-value','f-gav','f-shares','f-desc'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  document.getElementById('f-signal').value='hold';
+  document.getElementById('f-div').value='nei';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-ticker').focus(),50);
+}
+
+function editStock(id) {
+  const s = stocks.find(x=>x.id===id);
+  if(!s) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Rediger aksje';
+  document.getElementById('f-ticker').value = s.ticker;
+  document.getElementById('f-name').value = s.name;
+  document.getElementById('f-value').value = s.value;
+  document.getElementById('f-gav').value = s.gav||'';
+  document.getElementById('f-shares').value = s.shares||'';
+  document.getElementById('f-sector').value = s.sector;
+  document.getElementById('f-signal').value = s.signal;
+  document.getElementById('f-div').value = s.div;
+  document.getElementById('f-desc').value = s.desc||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveStock() {
+  const ticker = document.getElementById('f-ticker').value.trim();
+  const name = document.getElementById('f-name').value.trim();
+  const value = parseFloat(document.getElementById('f-value').value)||0;
+  if(!ticker||!name||value<=0){alert('Fyll inn ticker, navn og verdi.');return;}
+  const stock = {
+    id: editingId||Date.now(),
+    ticker, name, value,
+    gav: parseFloat(document.getElementById('f-gav').value)||0,
+    shares: parseFloat(document.getElementById('f-shares').value)||0,
+    sector: document.getElementById('f-sector').value,
+    signal: document.getElementById('f-signal').value,
+    div: document.getElementById('f-div').value,
+    desc: document.getElementById('f-desc').value.trim(),
+  };
+  if(editingId) {
+    const idx = stocks.findIndex(s=>s.id===editingId);
+    if(idx>=0) stocks[idx]=stock;
+  } else {
+    stocks.push(stock);
+  }
+  saveData(); renderAll(); closeModal();
+}
+
+function deleteStockAndBack(id) {
+  if(!confirm('Fjerne denne aksjen?')) return;
+  stocks = stocks.filter(s=>s.id!==id);
+  saveData(); renderAll(); showPage('companies');
+}
+
+function analyseOne(ticker, name) {
+  if(typeof sendPrompt==='function') sendPrompt(`Analyser ${ticker} (${name}) med alle fire agenter`);
+}
+
+function analyseAll() {
+  const list = stocks.map(s=>`${s.ticker} (${s.name}): ${(totalValue()>0?s.value/totalValue()*100:0).toFixed(1)}%`).join(', ');
+  if(typeof sendPrompt==='function') sendPrompt(`Gi meg oppdatert analyse og anbefalinger for hele porteføljen: ${list}`);
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeModal();
+  if(e.key==='Enter'&&document.getElementById('modalOverlay').classList.contains('open')) saveStock();
+});
+
+function acceptDisclaimer() {
+  localStorage.setItem('disclaimer-accepted', '1');
+  document.getElementById('disclaimerOverlay').style.display = 'none';
+}
+
+function showDisclaimer() {
+  document.getElementById('disclaimerOverlay').style.display = 'flex';
+}
+
+if(localStorage.getItem('disclaimer-accepted') === '1') {
+  document.getElementById('disclaimerOverlay').style.display = 'none';
+}
+
+loadData();
+</script>
+</body>
+</html>
